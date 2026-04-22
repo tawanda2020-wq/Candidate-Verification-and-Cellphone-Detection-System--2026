@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ExamGuard - Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link rel="stylesheet" href="css/dashboard_style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ── SIDEBAR ─────────────────────────────────────────────────────── -->
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-logo-s">
+        <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+      </div>
+      <span class="brand-name-s">Exam<span>Guard</span></span>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Overview</div>
+      <div class="nav-item active" onclick="switchPanel('overview',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        Dashboard
+      </div>
+      <div class="nav-item" onclick="switchPanel('livelog',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Live Entry Log
+        <span class="badge" id="newBadge" style="display:none">NEW</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Management</div>
+      <div class="nav-item" onclick="switchPanel('students',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Students
+      </div>
+      <div class="nav-item" onclick="switchPanel('gadgets',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+        Gadget Log
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-section-label">Analytics</div>
+      <div class="nav-item" onclick="switchPanel('analytics',this)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Analytics &amp; Charts
+      </div>
+    </div>
+
+    <div class="sidebar-footer">
+      <div class="user-row">
+        <div class="user-avatar" id="userAvatar">A</div>
+        <div class="user-info">
+          <div class="user-name" id="userName">Admin</div>
+          <div class="user-role" id="userRole">administrator</div>
+        </div>
+        <button class="btn-logout" onclick="logout()">Sign out</button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── MAIN ────────────────────────────────────────────────────────── -->
+  <div class="main">
+
+    <!-- TOPBAR -->
+    <div class="topbar">
+      <div class="topbar-left">
+        <h2 id="panelTitle">Dashboard Overview</h2>
+        <p id="panelSub">Real-time monitoring of the exam entry system</p>
+      </div>
+      <div class="topbar-right">
+        <div class="live-indicator"><div class="live-dot"></div> LIVE</div>
+        <button class="refresh-btn" onclick="refreshAll()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>
+          Refresh
+        </button>
+        <div class="topbar-time" id="clock">-</div>
+      </div>
+    </div>
+
+    <!-- CONTENT -->
+    <div class="content">
+
+      <!-- ══ PANEL: OVERVIEW ═══════════════════════════════════════ -->
+      <div class="panel active" id="panel-overview">
+
+        <!-- Stat Cards -->
+        <div class="stat-cards">
+          <div class="stat-card s-students">
+            <div class="card-label">Total Students</div>
+            <div class="card-value" id="statStudents">-</div>
+            <div class="card-sub">Registered &amp; active</div>
+            <div class="card-icon">🎓</div>
+          </div>
+          <div class="stat-card s-entries">
+            <div class="card-label">Entries Today</div>
+            <div class="card-value" id="statEntries">-</div>
+            <div class="card-sub">Total attempts</div>
+            <div class="card-icon">🚪</div>
+          </div>
+          <div class="stat-card s-pass">
+            <div class="card-label">Passed Today</div>
+            <div class="card-value" id="statPass">-</div>
+            <div class="card-sub">Cleared both checks</div>
+            <div class="card-icon">✅</div>
+          </div>
+          <div class="stat-card s-gadgets">
+            <div class="card-label">Gadgets Detected</div>
+            <div class="card-value" id="statGadgets">-</div>
+            <div class="card-sub">Today's violations</div>
+            <div class="card-icon">📱</div>
+          </div>
+        </div>
+
+        <!-- Charts Row -->
+        <div class="charts-row">
+          <div class="chart-card">
+            <h3>Entries Per Hour</h3>
+            <div class="chart-sub">Today's entry activity over time</div>
+            <div class="chart-wrap" style="height:200px">
+              <canvas id="chartHourly"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Pass vs Denied</h3>
+            <div class="chart-sub">Today's outcome split</div>
+            <div class="chart-wrap" style="height:200px">
+              <canvas id="chartPie"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3>Entry Rate</h3>
+            <div class="chart-sub">Entries processed</div>
+            <div style="display:flex;flex-direction:column;gap:1rem;margin-top:.5rem;">
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.35rem;">
+                  <span>Pass Rate</span><span id="passRatePct" style="color:var(--green);font-weight:600">-</span>
+                </div>
+                <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;">
+                  <div id="passBar" style="background:var(--green);height:100%;border-radius:100px;width:0%;transition:width .5s;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.35rem;">
+                  <span>Gadget Rate</span><span id="gadgetRatePct" style="color:var(--red);font-weight:600">-</span>
+                </div>
+                <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;">
+                  <div id="gadgetBar" style="background:var(--red);height:100%;border-radius:100px;width:0%;transition:width .5s;"></div>
+                </div>
+              </div>
+              <div>
+                <div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:.35rem;">
+                  <span>Fail Rate</span><span id="failRatePct" style="color:var(--orange);font-weight:600">-</span>
+                </div>
+                <div style="background:rgba(255,255,255,.06);border-radius:100px;height:6px;">
+                  <div id="failBar" style="background:var(--orange);height:100%;border-radius:100px;width:0%;transition:width .5s;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent entries preview -->
+        <div class="section-header">
+          <h3>Recent Entry Activity</h3>
+          <button class="btn-sm ghost" onclick="switchPanel('livelog',document.querySelector('[onclick*=livelog]'))">View All →</button>
+        </div>
+        <div class="table-wrap" id="overviewLogTable">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Student ID</th><th>Name</th><th>Result</th><th>Notes</th></tr></thead>
+            <tbody id="overviewLogBody"><tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: LIVE LOG ════════════════════════════════════════ -->
+      <div class="panel" id="panel-livelog">
+        <div class="section-header">
+          <h3>Live Entry Log <span style="font-size:.72rem;font-weight:400;color:var(--text-dim)">- auto-refreshes every 10s</span></h3>
+          <div class="hdr-right">
+            <input class="search-input" type="text" placeholder="Search name / ID…" id="searchLog" oninput="filterLog()"/>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Student ID</th><th>Name</th><th>Result</th><th>Notes</th></tr></thead>
+            <tbody id="liveLogBody"><tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: STUDENTS ════════════════════════════════════════ -->
+      <div class="panel" id="panel-students">
+        <div class="section-header">
+          <h3>Student Registry</h3>
+          <div class="hdr-right">
+            <input class="search-input" type="text" placeholder="Search name / ID…" id="searchStudents" oninput="filterStudents()"/>
+            <button class="btn-sm primary" onclick="openAddStudentModal()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              Add Student
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Student ID</th><th>Full Name</th><th>Course</th><th>Fingerprint ID</th><th>RFID UID</th><th>Status</th><th>Actions</th></tr></thead>
+            <tbody id="studentsBody"><tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:2rem">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: GADGET LOG ══════════════════════════════════════ -->
+      <div class="panel" id="panel-gadgets">
+        <div class="section-header">
+          <h3>Gadget Detection Log</h3>
+          <div class="hdr-right">
+            <button class="btn-sm ghost" onclick="exportGadgetCSV()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Export CSV
+            </button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Timestamp</th><th>Student ID</th><th>RFID UID</th><th>Action</th></tr></thead>
+            <tbody id="gadgetLogBody"><tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:2rem">Loading…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- ══ PANEL: ANALYTICS ═══════════════════════════════════════ -->
+      <div class="panel" id="panel-analytics">
+        <div class="stat-cards" style="margin-bottom:1.5rem;">
+          <div class="stat-card s-students"><div class="card-label">Total Students</div><div class="card-value" id="aStatStudents">-</div><div class="card-icon">🎓</div></div>
+          <div class="stat-card s-entries"><div class="card-label">Entries Today</div><div class="card-value" id="aStatEntries">-</div><div class="card-icon">🚪</div></div>
+          <div class="stat-card s-pass"><div class="card-label">Passed</div><div class="card-value" id="aStatPass">-</div><div class="card-icon">✅</div></div>
+          <div class="stat-card s-gadgets"><div class="card-label">Gadgets</div><div class="card-value" id="aStatGadgets">-</div><div class="card-icon">📱</div></div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+          <div class="chart-card">
+            <h3>Hourly Entry Volume</h3>
+            <div class="chart-sub">Entries per hour - today</div>
+            <div class="chart-wrap" style="height:250px"><canvas id="chartHourly2"></canvas></div>
+          </div>
+          <div class="chart-card">
+            <h3>Outcome Distribution</h3>
+            <div class="chart-sub">Pass vs Denied vs Gadget</div>
+            <div class="chart-wrap" style="height:250px"><canvas id="chartPie2"></canvas></div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- .content -->
+  </div><!-- .main -->
+</div><!-- .app -->
+
+<!-- ── ADD/EDIT STUDENT MODAL ─────────────────────────────────────────── -->
+<div class="modal-overlay" id="studentModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('studentModal')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h3 id="modalTitle">Add New Student</h3>
+    <p class="modal-sub" id="modalSub">Register a candidate in the exam database</p>
+    <input type="hidden" id="editStudentID"/>
+    <div class="form-row">
+      <div><label>Student ID</label><input type="text" id="fStudentID" placeholder="e.g. STU2024001"/></div>
+      <div><label>Full Name</label><input type="text" id="fName" placeholder="Full name"/></div>
+    </div>
+    <div class="form-row">
+      <div><label>Course / Programme</label><input type="text" id="fCourse" placeholder="e.g. BSc Computer Science"/></div>
+      <div><label>Status</label>
+        <select id="fStatus">
+          <option value="ACTIVE">ACTIVE</option>
+          <option value="INACTIVE">INACTIVE</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div><label>Fingerprint ID <small style="text-transform:none;font-weight:400">(from sensor)</small></label><input type="number" id="fFingerprintID" placeholder="e.g. 1"/></div>
+      <div><label>Electronic Gadget UID(MAC) <small style="text-transform:none;font-weight:400">(optional)</small></label><input type="text" id="fRfidUID" placeholder="e.g. A1:B2:C3"/></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-sm ghost" onclick="closeModal('studentModal')">Cancel</button>
+      <button class="btn-sm primary" id="saveStudentBtn" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── TOAST ──────────────────────────────────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>

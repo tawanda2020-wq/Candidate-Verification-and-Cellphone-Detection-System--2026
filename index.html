@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Exam Guard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="css/index_style.css">
+</head>
+<body>
+<div class="grid-bg"></div>
+<div class="glow-orb a"></div>
+<div class="glow-orb b"></div>
+<div class="page">
+
+<!-- ── NAVBAR ─────────────────────────────────────────────────────────── -->
+<nav>
+  <div class="nav-brand">
+    <div class="nav-logo">
+      <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4z"/></svg>
+    </div>
+    <span class="nav-brand-text">Exam<span>Guard</span></span>
+
+  </div>
+  <div class="nav-right">
+    <a href="login.html" class="btn-login">Admin Login →</a>
+  </div>
+</nav>
+
+<!-- ── HERO ───────────────────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-tag">Candidate Verification & Cellphone Detection System</div>
+    <h1 class="fade-in">
+      Secure Exam<br/>
+      <span class="accent">Entry.</span>
+      <span class="line2">Zero Compromise.</span>
+    </h1>
+    <p class="hero-desc fade-in">
+      A dual-layer IoT access control system combining RFID gadget detection
+      and biometric fingerprint verification - ensuring only registered,
+      device-free candidates enter the examination hall.
+    </p>
+    <div class="hero-actions fade-in">
+      <a href="login.html" class="btn-primary">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+        Open Dashboard
+      </a>
+      <a href="#how-it-works" class="btn-secondary">How It Works ↓</a>
+    </div>
+  </div>
+
+  <!-- Device mockup -->
+  <div class="hero-right">
+    <div class="device-frame">
+      <div class="device-topbar">
+        <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+        <span class="device-topbar-title">ExamGuard Unit</span>
+      </div>
+
+      <div class="lcd-screen" id="lcd">
+        &gt; === ExamGuard ===<br/>
+        &gt; Entry System Ready<br/>
+        &gt; Scan area for<br/>
+        &gt; gadgets...<span class="blink">█</span>
+      </div>
+
+      <div class="sensor-row">
+        <div class="sensor-card">
+          <div class="s-icon">📡</div>
+          <div class="s-label">RFID</div>
+          <div class="s-status">uid/mac</div>
+        </div>
+        <div class="sensor-card">
+          <div class="s-icon">👆</div>
+          <div class="s-label">Biometric</div>
+          <div class="s-status">fingerprint</div>
+        </div>
+        <div class="sensor-card">
+          <div class="s-icon">🔒</div>
+          <div class="s-label">Gate</div>
+          <div class="s-status">servo</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── FEATURES ─────────────────────────────────────────────────────────── -->
+<div class="section" id="features">
+  <span class="section-tag">System Capabilities</span>
+  <h2 class="section-title">Built for Examination Integrity</h2>
+  <div class="features-grid">
+    <div class="feature-card">
+      <div class="feat-num">01</div>
+      <div class="feat-title">RFID Gadget Detection</div>
+      <p class="feat-desc">MFRC522 reader scans for RFID-tagged electronic devices(mobile phone,smart watches,etc) as the first checkpoint. Any detected tag triggers an immediate alarm before fingerprint check.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-num">02</div>
+      <div class="feat-title">Biometric Verification</div>
+      <p class="feat-desc">AS608 fingerprint sensor matches enrolled templates. Only registered exam candidates with stored biometric data gain entry.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-num">03</div>
+      <div class="feat-title">Cloud-Synced Audit Trail</div>
+      <p class="feat-desc">Every entry attempt - pass or fail, and every gadget detection event is timestamped and logged securely in real time.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-num">04</div>
+      <div class="feat-title">Live Web Dashboard</div>
+      <p class="feat-desc">Examination invigilators monitor all gate activity, manage student records, view analytics charts, from any browser, any device.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-num">05</div>
+      <div class="feat-title">Motor-Controlled Gate</div>
+      <p class="feat-desc">The gate opens automatically only when both checks pass, and auto-closes after a timed window.</p>
+    </div>
+    <div class="feature-card">
+      <div class="feat-num">06</div>
+      <div class="feat-title">Multi-State Alerts</div>
+      <p class="feat-desc">Distinct buzzer patterns, LEDs, and LCD messages communicate system state to students and invigilators at the gate clearly and instantly.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── HOW IT WORKS ──────────────────────────────────────────────────────── -->
+<div class="flow-section" id="how-it-works">
+  <div class="flow-inner">
+    <span class="section-tag">Entry Flow</span>
+    <h2 class="section-title" style="margin-bottom:2.5rem;">How Entry Works</h2>
+    <div class="flow-steps">
+      <div class="flow-step">
+        <div class="step-circle">📡</div>
+        <div class="step-title">RFID Scan</div>
+        <div class="step-desc">Candidate passes through the RFID polling zone. MFRC522 listens for 5 seconds.</div>
+        <span class="step-outcome fail">Electronic Device → DENIED</span>
+      </div>
+      <div class="flow-step">
+        <div class="step-circle">✅</div>
+        <div class="step-title">Gadget Clear</div>
+        <div class="step-desc">No electronic gadget detected. System confirms the candidate is device-free.</div>
+        <span class="step-outcome neutral">Proceed</span>
+      </div>
+      <div class="flow-step">
+        <div class="step-circle">👆</div>
+        <div class="step-title">Fingerprint</div>
+        <div class="step-desc">Candidate places finger on sensor. ID matched against enrolled database.</div>
+        <span class="step-outcome fail">No Match → DENIED</span>
+      </div>
+      <div class="flow-step">
+        <div class="step-circle">☁️</div>
+        <div class="step-title">Cloud Lookup</div>
+        <div class="step-desc">Controller queries the Database API. Student name and eligibility returned.</div>
+        <span class="step-outcome neutral">Verify</span>
+      </div>
+      <div class="flow-step">
+        <div class="step-circle">🚪</div>
+        <div class="step-title">Gate Opens</div>
+        <div class="step-desc">Motor unlocks. LCD shows "Good Luck". Event logged.</div>
+        <span class="step-outcome pass">ACCESS GRANTED</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── FOOTER ────────────────────────────────────────────────────────────── -->
+<footer>
+  <strong>ExamGuard</strong> · Candidate Verification &amp; Cellphone Detection System 
+</footer>
+
+</div><!-- .page -->
+
+<script>
+// LCD animation cycling through states
+const lcdStates = [
+  ["> === ExamGuard ===","> Entry System","> Scan area for","> gadgets...<span class='blink'>█</span>"],
+  ["> STEP 1 OF 2","> Gadget Check","","<span style='color:#f59e0b'>> Scanning zone...</span>"],
+  ["> Gadget Check:",">   CLEAR  OK","","<span style='color:#10b981'>> Proceed...</span>"],
+  ["> STEP 2 OF 2","> Biometric Check","> Place finger on","> sensor now...<span class='blink'>█</span>"],
+  ["> Fingerprint OK","><span style='color:#10b981'>  VERIFIED</span>","","> Opening gate..."],
+  ["<span style='color:#10b981'>> ACCESS GRANTED</span>","> Welcome, Tinashe","","<span style='color:#10b981'>> Good Luck! :)</span>"],
+];
+let lcdIdx = 0;
+const lcdEl = document.getElementById('lcd');
+setInterval(() => {
+  lcdIdx = (lcdIdx + 1) % lcdStates.length;
+  lcdEl.innerHTML = lcdStates[lcdIdx].join('<br/>');
+}, 2500);
+</script>
+</body>
+</html>
