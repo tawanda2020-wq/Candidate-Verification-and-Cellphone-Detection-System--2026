@@ -1,5 +1,5 @@
 // ── CONFIG — Apps Script URL here ──────────────────────────────
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwFRfVdQJwYiSEv5VC_VSbzrwwrT0DU3H7yFXd91rUI00su5J2yUun6n2vk04yJVehmoQ/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycby3HJkYzTwQXzbJZ1ysdLLx67qQDv2JqBKnw7lMSqmra5oJf3t8_nR55cnXz9oLCD_gCA/exec";
 
 function showMsg(type) {
   ['msgError','msgLoading','msgSuccess'].forEach(id => {
@@ -22,11 +22,10 @@ async function handleLogin() {
   btn.disabled = true;
 
   try {
-    const res = await fetch(BACKEND_URL, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'login', username, password })
-    });
+    const res = await fetch(
+      `${BACKEND_URL}?action=login&username=${encodeURIComponent(username)}&password=${encodeURIComponent(password)}`,
+      { method: 'GET' }
+    );
     const data = await res.json();
 
     if (data.success) {
