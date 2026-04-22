@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════════════════
 
 // ── CONFIG ───────────────────────────────────────────────────────────────
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwFRfVdQJwYiSEv5VC_VSbzrwwrT0DU3H7yFXd91rUI00su5J2yUun6n2vk04yJVehmoQ/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycby3HJkYzTwQXzbJZ1ysdLLx67qQDv2JqBKnw7lMSqmra5oJf3t8_nR55cnXz9oLCD_gCA/exec";
 
 // ── STATE ────────────────────────────────────────────────────────────────
 let allEntryLogs   = [];
@@ -78,18 +78,18 @@ async function apiGet(action) {
   return res.json();
 }
 async function apiPost(body) {
-  const res  = await fetch(BACKEND_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body:    JSON.stringify(body)
-  });
+  const params = Object.entries(body)
+    .map(([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v ?? '')}`)
+    .join('&');
+  const res = await fetch(`${BACKEND_URL}?${params}`);
   return res.json();
 }
 
 // ── LOAD ALL DATA ────────────────────────────────────────────────────────────
 async function refreshAll() {
   try {
-    await Promise.all([loadStats(), loadLogs(), loadStudents(), loadGadgetLog()]);
+    await Promise.all([loadStats(), loadLogs(), loadStudents()]);
+    await loadGadgetLog(); // runs after students are in allStudents[]
   } catch(e) {
     showToast('Network error: ' + e.message, 'error');
   }
@@ -218,16 +218,58 @@ function renderStudentsTable(students) {
 function renderGadgetLogTable(logs) {
   const tbody = document.getElementById('gadgetLogBody');
   if (!logs.length) {
-    tbody.innerHTML = `<tr><td colspan="4" style="text-align:center;color:var(--text-dim);padding:2rem">No gadget detections recorded yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:2rem">No gadget detections yet.</td></tr>`;
     return;
   }
-  tbody.innerHTML = logs.map(l => `
+
+  tbody.innerHTML = logs.map(l => {
+    const sid = l.studentID || '';
+
+    // ── Derive owner name & course from the student registry ──────────────
+    let ownerName   = '—';
+    let ownerCourse = '—';
+    if (sid && sid !== 'SKIPPED-FP' && sid !== 'UNKNOWN') {
+      const match = allStudents.find(s => s.studentID == sid);
+      if (match) {
+        ownerName   = match.name   || '—';
+        ownerCourse = match.course || '—';
+      }
+    }
+
+    // ── Build a human-readable note/message ───────────────────────────────
+    let noteMsg = '';
+    let badgeHtml = '';
+
+    if (sid === 'SKIPPED-FP') {
+      badgeHtml = `<span class="badge fail">⚠️ Skipped Fingerprint</span>`;
+      noteMsg   = ownerName !== '—'
+        ? `${ownerName} bypassed biometric check with registered gadget.`
+        : `Unknown person bypassed fingerprint check. Device not registered.`;
+    } else if (sid === 'UNKNOWN') {
+      badgeHtml = `<span class="badge inactive">❓ Unregistered Device</span>`;
+      noteMsg   = 'Device UID not linked to any student in the database.';
+    } else if (ownerName !== '—') {
+      badgeHtml = `<span class="badge gadget">📱 Gadget Detected</span>`;
+      noteMsg   = `${ownerName}'s registered device was detected during entry scan.`;
+    } else {
+      badgeHtml = `<span class="badge gadget">📱 Gadget Detected</span>`;
+      noteMsg   = 'Device detected; student record found by ID only.';
+    }
+
+    // Append any raw notes logged by firmware if present
+    if (l.notes && l.notes.trim()) noteMsg += ' · ' + l.notes.trim();
+
+    return `
     <tr>
       <td style="color:var(--text-dim);font-size:.75rem">${formatTs(l.timestamp)}</td>
-      <td><code style="font-size:.75rem;color:var(--teal)">${l.studentID||'UNIDENTIFIED'}</code></td>
+      <td><code style="font-size:.73rem;color:var(--teal)">${sid || '—'}</code></td>
+      <td style="font-weight:500">${ownerName}</td>
+      <td style="color:var(--text-dim);font-size:.8rem">${ownerCourse}</td>
       <td><code style="font-size:.73rem;color:var(--orange)">${l.rfidUID||'—'}</code></td>
-      <td><span class="badge gadget">📱 Gadget Detected</span></td>
-    </tr>`).join('');
+      <td>${badgeHtml}</td>
+      <td style="color:var(--text-dim);font-size:.78rem;max-width:220px">${noteMsg}</td>
+    </tr>`;
+  }).join('');
 }
 
 // ── SEARCH FILTERS ────────────────────────────────────────────────────────────
@@ -381,7 +423,7 @@ async function deleteStudent(studentID) {
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
 function exportGadgetCSV() {
   if (!allGadgetLogs.length) { showToast('No gadget log data to export.', 'error'); return; }
-  const headers = ['Timestamp','StudentID','RFID UID','Action'];
+  const headers = ['Timestamp','StudentID','Electronic Gadget UID(MAC)','Action'];
   const rows    = allGadgetLogs.map(l => [l.timestamp, l.studentID, l.rfidUID, l.action]);
   const csv     = [headers, ...rows].map(r => r.map(c => `"${c||''}"`).join(',')).join('\n');
   const blob    = new Blob([csv], { type: 'text/csv' });
