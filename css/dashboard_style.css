@@ -47,7 +47,7 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
   display:grid;place-items:center;flex-shrink:0;
 }
 .brand-logo-s svg{width:16px;height:16px;fill:var(--navy);}
-.brand-name-s{font-family:var(--font-head);font-size:1.05rem;font-weight:800;}
+.brand-name-s{font-family:var(--font-body);font-size:1.05rem;font-weight:800;}
 .brand-name-s span{color:var(--amber);}
 
 .sidebar-section{padding:.75rem 0;}
@@ -83,7 +83,7 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
 .user-avatar{
   width:32px;height:32px;border-radius:8px;background:var(--amber-glow);
   border:1px solid var(--border-amber);display:grid;place-items:center;flex-shrink:0;
-  font-family:var(--font-head);font-size:.8rem;font-weight:700;color:var(--amber);
+  font-family:var(--font-body);font-size:.8rem;font-weight:700;color:var(--amber);
 }
 .user-info .user-name{font-size:.8rem;font-weight:600;color:var(--text);}
 .user-info .user-role{font-size:.68rem;color:var(--text-dim);text-transform:capitalize;}
@@ -103,7 +103,7 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
   padding:.875rem 1.75rem;border-bottom:1px solid var(--border);
   background:var(--navy-mid);flex-shrink:0;
 }
-.topbar-left h2{font-family:var(--font-head);font-size:1.1rem;font-weight:800;}
+.topbar-left h2{font-family:var(--font-body);font-size:1.1rem;font-weight:800;}
 .topbar-left p{font-size:.75rem;color:var(--text-dim);}
 .topbar-right{display:flex;align-items:center;gap:.75rem;}
 .live-indicator{
@@ -140,7 +140,7 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
 }
 .stat-card:hover{border-color:rgba(255,255,255,.15);}
 .stat-card .card-label{font-size:.74rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:.6rem;}
-.stat-card .card-value{font-family:var(--font-head);font-size:2rem;font-weight:800;line-height:1;}
+.stat-card .card-value{font-family:var(--font-body);font-size:2rem;font-weight:800;line-height:1;}
 .stat-card .card-sub{font-size:.78rem;color:var(--text-dim);margin-top:.35rem;}
 .stat-card .card-icon{
   position:absolute;right:1rem;top:50%;transform:translateY(-50%);
@@ -162,7 +162,7 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
   background:var(--navy-card);border:1px solid var(--border);
   border-radius:10px;padding:1.25rem;
 }
-.chart-card h3{font-family:var(--font-head);font-size:.85rem;font-weight:700;margin-bottom:.25rem;}
+.chart-card h3{font-family:var(--font-body);font-size:.85rem;font-weight:700;margin-bottom:.25rem;}
 .chart-card .chart-sub{font-size:.72rem;color:var(--text-dim);margin-bottom:1rem;}
 .chart-wrap{position:relative;}
 
@@ -193,9 +193,28 @@ html,body{height:100%;background:var(--navy);color:var(--text);font-family:var(-
 .btn-sm.danger:hover{background:rgba(239,68,68,.1);}
 .btn-sm svg{width:12px;height:12px;}
 
+/*
 .table-wrap{
   background:var(--navy-card);border:1px solid var(--border);border-radius:10px;overflow:hidden;
+}*/
+
+/* Scrollable table containers */
+.table-wrap {
+  background:var(--navy-card);border:1px solid var(--border);
+  overflow-x: auto;
+  overflow-y: auto;
+  max-height: 420px;   /* adjust to taste */
+  border-radius: 8px;
 }
+
+/* Freeze the header row while body scrolls */
+.table-wrap table thead th {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--surface2, #1e293b); /* match your dark theme */
+}
+
 table{width:100%;border-collapse:collapse;}
 thead tr{background:rgba(255,255,255,.03);}
 th{
