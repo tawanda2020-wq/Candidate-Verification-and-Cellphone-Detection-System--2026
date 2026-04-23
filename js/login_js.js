@@ -1,5 +1,5 @@
 // ── CONFIG — Apps Script URL here ──────────────────────────────
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycby3HJkYzTwQXzbJZ1ysdLLx67qQDv2JqBKnw7lMSqmra5oJf3t8_nR55cnXz9oLCD_gCA/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwAERrMd0OG5OuuGPb6xhUS54htSXruO0gkBcpRbW7_A2BQw-wKtoUuRZ1pMgY3OFmAWA/exec";
 
 function showMsg(type) {
   ['msgError','msgLoading','msgSuccess'].forEach(id => {
