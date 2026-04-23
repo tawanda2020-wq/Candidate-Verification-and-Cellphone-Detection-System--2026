@@ -3,7 +3,7 @@
 // ══════════════════════════════════════════════════════════════════════════
 
 // ── CONFIG ───────────────────────────────────────────────────────────────
-const BACKEND_URL = "https://script.google.com/macros/s/AKfycby3HJkYzTwQXzbJZ1ysdLLx67qQDv2JqBKnw7lMSqmra5oJf3t8_nR55cnXz9oLCD_gCA/exec";
+const BACKEND_URL = "https://script.google.com/macros/s/AKfycbwAERrMd0OG5OuuGPb6xhUS54htSXruO0gkBcpRbW7_A2BQw-wKtoUuRZ1pMgY3OFmAWA/exec";
 
 // ── STATE ────────────────────────────────────────────────────────────────
 let allEntryLogs   = [];
@@ -174,6 +174,39 @@ function resultBadge(result) {
   return `<span class="badge inactive">${result}</span>`;
 }
 
+function formatNotes(result, raw) {
+  if (!result) return raw || '';
+  const r = result.toUpperCase();
+
+  // Build a clean human-readable message based on result type
+  let msg = '';
+  if (r === 'PASS')                 msg = 'Entry granted. No electronic device detected.';
+  else if (r === 'FAIL-BIOMETRIC')  msg = 'Fingerprint not recognised.';
+  else if (r === 'FAIL-NOT-REGISTERED') msg = 'Fingerprint not linked to any registered candidate.';
+  else if (r === 'FAIL-SERVER-ERROR')   msg = 'Backend unreachable during verification.';
+  else if (r.startsWith('FAIL-STATUS')) {
+    const status = r.replace('FAIL-STATUS:', '').replace('FAIL-STATUS', '').trim();
+    msg = `Candidate status is ${status || 'not ACTIVE'}. Entry denied.`;
+  } else if (r === 'FAIL-GADGET') {
+    // Extract UID and optional owner from raw notes e.g. "UID:4A:09:79:32 Owner:Tawanda"
+    if (raw) {
+      const uidMatch   = raw.match(/UID:([^\s]+)/);
+      const ownerMatch = raw.match(/Owner:(.+)/);
+      const uid   = uidMatch   ? uidMatch[1]   : '';
+      const owner = ownerMatch ? ownerMatch[1].trim() : '';
+      msg = 'Electronic device detected' + (uid ? ` (UID: ${uid})` : '') + (owner ? `. Belongs to: ${owner}` : '') + '.';
+    } else {
+      msg = 'Electronic device detected during entry scan.';
+    }
+  } else if (r === 'FAIL-GADGET-UNAUTH') {
+    msg = 'Candidate bypassed fingerprint scan while carrying a device.';
+  } else {
+    msg = raw || '';
+  }
+
+  return msg;
+}
+
 function renderEntryLogTable(logs, tbodyId) {
   const tbody = document.getElementById(tbodyId);
   if (!logs.length) {
@@ -186,7 +219,7 @@ function renderEntryLogTable(logs, tbodyId) {
       <td><code style="font-size:.75rem;color:var(--teal)">${l.studentID || '—'}</code></td>
       <td style="font-weight:500">${l.name || '—'}</td>
       <td>${resultBadge(l.result)}</td>
-      <td style="color:var(--text-dim);font-size:.78rem">${l.notes || '—'}</td>
+      <td style="color:var(--text-dim);font-size:.78rem">${formatNotes(l.result, l.notes) || '—'}</td>
     </tr>`).join('');
 }
 
@@ -205,11 +238,10 @@ function renderStudentsTable(students) {
       <td style="font-weight:500">${s.name||'—'}</td>
       <td style="color:var(--text-dim)">${s.course||'—'}</td>
       <td style="text-align:center"><code style="color:var(--amber)">${s.fingerprintID||'—'}</code></td>
-      <td style="font-size:.73rem;color:var(--text-dim)">${s.rfidUID||'—'}</td>
+      <td style="font-size:.73rem;color:var(--text-dim)">${s['electronic gadget UID(MAC)'] || s.rfidUID || '—'}</td>
       <td>${statusBadge}</td>
       <td>
         <button class="btn-sm ghost" style="margin-right:.3rem" onclick="openEditStudentModal(${JSON.stringify(s).replace(/"/g,'&quot;')})">Edit</button>
-        <button class="btn-sm danger" onclick="deleteStudent('${s.studentID}')">Del</button>
       </td>
     </tr>`;
   }).join('');
@@ -262,7 +294,7 @@ function renderGadgetLogTable(logs) {
     return `
     <tr>
       <td style="color:var(--text-dim);font-size:.75rem">${formatTs(l.timestamp)}</td>
-      <td><code style="font-size:.73rem;color:var(--teal)">${sid || '—'}</code></td>
+      <td><code style="font-size:.73rem;color:var(--orange)">${l['electronic gadget UID(MAC)'] || l.rfidUID || '—'}</code></td>
       <td style="font-weight:500">${ownerName}</td>
       <td style="color:var(--text-dim);font-size:.8rem">${ownerCourse}</td>
       <td><code style="font-size:.73rem;color:var(--orange)">${l.rfidUID||'—'}</code></td>
@@ -370,7 +402,7 @@ function openEditStudentModal(s) {
   document.getElementById('fName').value            = s.name      || '';
   document.getElementById('fCourse').value          = s.course    || '';
   document.getElementById('fFingerprintID').value   = s.fingerprintID || '';
-  document.getElementById('fRfidUID').value         = s.rfidUID   || '';
+  document.getElementById('fRfidUID').value = s['electronic gadget UID(MAC)'] || s.rfidUID || '';
   document.getElementById('fStatus').value          = s.status    || 'ACTIVE';
   document.getElementById('saveStudentBtn').textContent = 'Update Student';
   openModal('studentModal');
@@ -388,6 +420,13 @@ async function saveStudent() {
   };
 
   if (!payload.name) { showToast('Name is required.', 'error'); return; }
+
+  // Normalise UID: auto-insert colons if raw hex entered (e.g. 4A097932 => 4A:09:79:32)
+  if (payload.rfidUID && !payload.rfidUID.includes(':') && payload.rfidUID.length === 8) {
+    const raw = payload.rfidUID.toUpperCase();
+    payload.rfidUID = raw.match(/.{2}/g).join(':');
+    showToast('UID auto-formatted to ' + payload.rfidUID, 'success');
+  }
 
   payload.action = editID ? 'updateStudent' : 'addStudent';
   if (editID) payload.studentID = editID;
@@ -408,6 +447,7 @@ async function saveStudent() {
   }
 }
 
+/*
 async function deleteStudent(studentID) {
   if (!confirm('Mark student ' + studentID + ' as DELETED? This cannot be undone easily.')) return;
   const data = await apiPost({ action: 'deleteStudent', studentID });
@@ -419,6 +459,7 @@ async function deleteStudent(studentID) {
     showToast(data.error || 'Delete failed.', 'error');
   }
 }
+*/
 
 // ── EXPORT CSV ────────────────────────────────────────────────────────────────
 function exportGadgetCSV() {
