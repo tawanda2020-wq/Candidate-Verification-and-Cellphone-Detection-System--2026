@@ -250,7 +250,7 @@ function renderStudentsTable(students) {
 function renderGadgetLogTable(logs) {
   const tbody = document.getElementById('gadgetLogBody');
   if (!logs.length) {
-    tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;color:var(--text-dim);padding:2rem">No gadget detections yet.</td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-dim);padding:2rem">No gadget detections yet.</td></tr>`;
     return;
   }
 
@@ -292,15 +292,13 @@ function renderGadgetLogTable(logs) {
     if (l.notes && l.notes.trim()) noteMsg += ' · ' + l.notes.trim();
 
     return `
-    <tr>
-      <td style="color:var(--text-dim);font-size:.75rem">${formatTs(l.timestamp)}</td>
-      <td><code style="font-size:.73rem;color:var(--orange)">${l['electronic gadget UID(MAC)'] || l.rfidUID || '—'}</code></td>
-      <td style="font-weight:500">${ownerName}</td>
-      <td style="color:var(--text-dim);font-size:.8rem">${ownerCourse}</td>
-      <td><code style="font-size:.73rem;color:var(--orange)">${l.rfidUID||'—'}</code></td>
-      <td>${badgeHtml}</td>
-      <td style="color:var(--text-dim);font-size:.78rem;max-width:220px">${noteMsg}</td>
-    </tr>`;
+<tr>
+  <td style="color:var(--text-dim);font-size:.75rem">${formatTs(l.timestamp)}</td>
+  <td><code style="font-size:.73rem;color:var(--teal)">${sid || '—'}</code></td>
+  <td style="font-weight:500">${ownerName}</td>
+  <td>${badgeHtml}</td>
+  <td style="color:var(--text-dim);font-size:.78rem;max-width:260px">${noteMsg}</td>
+</tr>`;
   }).join('');
 }
 
